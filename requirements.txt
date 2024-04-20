@@ -1,1 +1,8 @@
-psutil~=5.9.0
+psutil
+numpy
+numba
+
+
+
+# for plotting only
+matplotlib

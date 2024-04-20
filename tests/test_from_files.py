@@ -1,9 +1,33 @@
 import unittest
 import os
 
-from common import generate_input_strings
+from typing import Tuple
+
 from basic_3 import basic
 from efficient_3 import efficient
+
+
+def generate_input_strings(file_path: str) -> Tuple[str, str]:
+    with open(file_path, 'r') as file:
+        lines = [line.strip() for line in file.readlines()]
+
+    s = lines[0]
+    t = None
+    flag = True
+
+    for line in lines[1:]:
+        if line.isdigit():
+            i = int(line)
+            if flag:
+                s = s[:i + 1] + s + s[i + 1:]
+            else:
+                t = t[:i + 1] + t + t[i + 1:]
+        else:
+            if flag:
+                t = line
+                flag = False
+
+    return s, t
 
 
 def read_expected_output(path: str):
