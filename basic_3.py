@@ -19,6 +19,7 @@ def basic(s: str, t: str) -> Tuple[int, str, str]:
     index_s = [index[char] for char in s]
     index_t = [index[char] for char in t]
 
+    # base cases
     for i in range(1, m + 1):
         dp[i][0] = dp[i - 1][0] + DELTA
     for j in range(1, n + 1):
@@ -26,8 +27,10 @@ def basic(s: str, t: str) -> Tuple[int, str, str]:
 
     for i in range(1, m + 1):
         for j in range(1, n + 1):
-            cost_match = ALPHA[index_s[i - 1]][index_t[j - 1]]
-            dp[i][j] = min(dp[i - 1][j - 1] + cost_match, dp[i - 1][j] + DELTA, dp[i][j - 1] + DELTA)
+            tmp = ALPHA[index_s[i - 1]][index_t[j - 1]]
+            dp[i][j] = min(dp[i - 1][j - 1] + tmp, dp[i - 1][j] + DELTA, dp[i][j - 1] + DELTA)
+
+    # Backtrack to build the aligned strings.
 
     aligned_s, aligned_t = "", ""
     i, j = m, n

@@ -7,6 +7,11 @@ import sys
 import os
 import re
 
+from collections import defaultdict
+
+from typing import Dict
+
+from prettytable import PrettyTable
 
 def get_problem_size(file_path: str) -> int:
     with open(file_path, 'r') as file:
@@ -45,59 +50,70 @@ def extract_index(filename: str) -> int:
     return int(match.group(0))
 
 
-def plot_data(problem_sizes: np.ndarray, times: np.ndarray, memories: np.ndarray, method: str) -> None:
+def plot_data(problem_sizes: np.ndarray, times: Dict[str, np.ndarray], memories: Dict[str, np.ndarray]) -> None:
+    # Create the CPU time plot with multiple methods
     plt.figure(figsize=(10, 5))
-    plt.plot(problem_sizes, times, marker='o', linestyle='-', label=f'{method} CPU Time (ms)')
+    for method, time in times.items():
+        plt.plot(problem_sizes, time, marker='o', linestyle='-', label=f'{method}')
     plt.xlabel('Problem Size (m+n)')
     plt.ylabel('CPU Time (milliseconds)')
-    plt.title(f'CPU Time vs. Problem Size for {method} Method')
+    plt.title('CPU Time vs. Problem Size')
     plt.legend()
-    plt.savefig(os.path.join('results', f'{method}_cpu_time_vs_problem_size.png'))
+    plt.savefig(os.path.join('results', 'cpu_time_vs_problem_size.png'))
     plt.close()
 
+    # Create the Memory usage plot with multiple methods
     plt.figure(figsize=(10, 5))
-    plt.plot(problem_sizes, memories, marker='o', linestyle='-', label=f'{method} Memory Usage (KB)')
+    for method, memory in memories.items():
+        plt.plot(problem_sizes, memory, marker='o', linestyle='-', label=f'{method}')
     plt.xlabel('Problem Size (m+n)')
     plt.ylabel('Memory Usage (KB)')
-    plt.title(f'Memory Usage vs. Problem Size for {method} Method')
+    plt.title('Memory Usage vs. Problem Size')
     plt.legend()
-    plt.savefig(os.path.join('results', f'{method}_memory_usage_vs_problem_size.png'))
+    plt.savefig(os.path.join('results', 'memory_usage_vs_problem_size.png'))
     plt.close()
+
+
+METHODS = ("basic", )
 
 
 def main():
-    assert len(sys.argv) == 2
-    method = sys.argv[1]
-
-    assert method in ("basic", "efficient"), ValueError(f"Unknown method: {method}")
-
-    print("Method: {}".format(method))
-
     in_files = os.listdir("datapoints")
     in_files.sort(key=extract_index)
 
     problem_sizes = []
-    times = []
-    memories = []
+    times = defaultdict(list)
+    memories = defaultdict(list)
 
     with tempfile.NamedTemporaryFile() as temp_file:
         temp_file_path = temp_file.name
         for in_file in in_files:
             path = os.path.join("datapoints", in_file)
             problem_size = get_problem_size(path)
-            subprocess.run(["python3", f"{method}_3.py", path, temp_file_path], text=True, capture_output=True)
-
-            time, memory = read_expected_output(temp_file_path)
-
             problem_sizes.append(problem_size)
-            times.append(time)
-            memories.append(memory)
+
+            for method in METHODS:
+                subprocess.run(["python3", f"{method}_3.py", path, temp_file_path], text=True, capture_output=True)
+
+                time, memory = read_expected_output(temp_file_path)
+
+                times[method].append(time)
+                memories[method].append(memory)
 
     problem_sizes = np.array(problem_sizes)
-    times = np.array(times)
-    memories = np.array(memories)
+    times = {k: np.array(v) for k, v in times.items()}
+    memories = {k: np.array(v) for k, v in memories.items()}
 
-    plot_data(problem_sizes, times, memories, method)
+    for method in METHODS:
+        table = PrettyTable()
+        table.title = f"Method: {method}"
+        table.field_names = ["Problem Size", "Time", "Memory"]
+        for i, size in enumerate(problem_sizes):
+            table.add_row([size, times[method][i], memories[method][i]])
+        print(table)
+        print("\n")
+
+    plot_data(problem_sizes, times, memories)
 
 
 if __name__ == '__main__':

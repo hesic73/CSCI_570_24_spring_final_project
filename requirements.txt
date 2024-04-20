@@ -1,4 +1,6 @@
 psutil
 
 # for plotting only
+numpy
 matplotlib
+prettytable
