@@ -13,6 +13,7 @@ from typing import Dict
 
 from prettytable import PrettyTable
 
+
 def get_problem_size(file_path: str) -> int:
     with open(file_path, 'r') as file:
         lines = [line.strip() for line in file.readlines()]
@@ -74,7 +75,7 @@ def plot_data(problem_sizes: np.ndarray, times: Dict[str, np.ndarray], memories:
     plt.close()
 
 
-METHODS = ("basic", )
+METHODS = ("basic", "efficient")
 
 
 def main():

@@ -59,28 +59,7 @@ def basic(s: str, t: str) -> Tuple[int, str, str]:
         aligned_t = t[j - 1] + aligned_t
         j -= 1
 
-    # assert dp[m][n] == calculate_cost(aligned_s, aligned_t)
-
     return dp[m][n], aligned_s, aligned_t
-
-
-def calculate_cost(aligned_s: str, aligned_t: str) -> int:
-    assert len(aligned_s) == len(aligned_t)
-
-    index = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
-
-    total_cost = 0
-
-    for i in range(len(aligned_s)):
-        char_s = aligned_s[i]
-        char_t = aligned_t[i]
-
-        if char_s != '_' and char_t != '_':
-            total_cost += ALPHA[index[char_s]][index[char_t]]
-        elif char_s == '_' or char_t == '_':
-            total_cost += DELTA
-
-    return total_cost
 
 
 import sys

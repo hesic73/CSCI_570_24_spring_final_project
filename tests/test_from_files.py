@@ -36,6 +36,33 @@ def read_expected_output(path: str):
         return int(lines[0]), lines[1], lines[2]
 
 
+def calculate_cost(aligned_s: str, aligned_t: str) -> int:
+    assert len(aligned_s) == len(aligned_t)
+    ALPHA = [
+        [0, 110, 48, 94],
+        [110, 0, 118, 48],
+        [48, 118, 0, 110],
+        [94, 48, 110, 0]
+    ]
+
+    DELTA = 30
+
+    index = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+
+    total_cost = 0
+
+    for i in range(len(aligned_s)):
+        char_s = aligned_s[i]
+        char_t = aligned_t[i]
+
+        if char_s != '_' and char_t != '_':
+            total_cost += ALPHA[index[char_s]][index[char_t]]
+        elif char_s == '_' or char_t == '_':
+            total_cost += DELTA
+
+    return total_cost
+
+
 class TestFromFiles(unittest.TestCase):
 
     def setUp(self):
@@ -60,8 +87,7 @@ class TestFromFiles(unittest.TestCase):
                 output_file_path)
 
             self.assertEqual(cost, expected_cost)
-            # self.assertEqual(first_string_alignment, expected_first_string_alignment)
-            # self.assertEqual(second_string_alignment, expected_second_string_alignment)
+            self.assertEqual(cost, calculate_cost(first_string_alignment, second_string_alignment))
 
     def test_efficient(self):
         test_files = os.listdir(self.test_data_dir)
@@ -80,8 +106,7 @@ class TestFromFiles(unittest.TestCase):
                 output_file_path)
 
             self.assertEqual(cost, expected_cost)
-            # self.assertEqual(first_string_alignment, expected_first_string_alignment)
-            # self.assertEqual(second_string_alignment, expected_second_string_alignment)
+            self.assertEqual(cost, calculate_cost(first_string_alignment, second_string_alignment))
 
 
 if __name__ == '__main__':
