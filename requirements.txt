@@ -1,8 +1,4 @@
 psutil
-numpy
-numba
-
-
 
 # for plotting only
 matplotlib

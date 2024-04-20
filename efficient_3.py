@@ -1,9 +1,36 @@
 from typing import Tuple
 
+ALPHA = [
+    [0, 110, 48, 94],
+    [110, 0, 118, 48],
+    [48, 118, 0, 110],
+    [94, 48, 110, 0]
+]
+
+DELTA = 30
+
 
 def efficient(s: str, t: str) -> Tuple[int, str, str]:
     raise NotImplementedError
 
+
+def calculate_cost(aligned_s: str, aligned_t: str) -> int:
+    assert len(aligned_s) == len(aligned_t)
+
+    index = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+
+    total_cost = 0
+
+    for i in range(len(aligned_s)):
+        char_s = aligned_s[i]
+        char_t = aligned_t[i]
+
+        if char_s != '_' and char_t != '_':
+            total_cost += ALPHA[index[char_s]][index[char_t]]
+        elif char_s == '_' or char_t == '_':
+            total_cost += DELTA
+
+    return total_cost
 
 
 import sys
@@ -63,7 +90,6 @@ def _main(func: FunctionType) -> None:
     with open(output_file_path, 'w') as file:
         file.write(
             f"{cost}\n{first_string_alignment}\n{second_string_alignment}\n{time_elapsed}\n{process_memory_consumed}\n")
-
 
 
 if __name__ == '__main__':
